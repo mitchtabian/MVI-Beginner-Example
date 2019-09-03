@@ -1,18 +1,19 @@
 package com.codingwithmitch.mvibeginnerexample.api
 
-import androidx.lifecycle.LiveData
 import com.codingwithmitch.mvibeginnerexample.model.BlogPost
 import com.codingwithmitch.mvibeginnerexample.model.User
-import com.codingwithmitch.mvibeginnerexample.util.GenericApiResponse
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface ApiService {
 
     @GET("placeholder/blogs")
-    fun getBlogPosts(): LiveData<GenericApiResponse<List<BlogPost>>>
+    suspend fun getBlogPosts(): List<BlogPost>
 
-    @GET("placeholder/user")
-    fun getUser(): LiveData<GenericApiResponse<User>>
+    @GET("placeholder/user/{userId}")
+    suspend fun getUser(
+        @Path("userId") userId: String
+    ): User
 }
 
 

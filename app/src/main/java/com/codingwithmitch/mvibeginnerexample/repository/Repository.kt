@@ -1,62 +1,54 @@
 package com.codingwithmitch.mvibeginnerexample.repository
 
 import androidx.lifecycle.LiveData
-import com.codingwithmitch.mvibeginnerexample.api.ApiService
 import com.codingwithmitch.mvibeginnerexample.api.MyRetrofitBuilder
 import com.codingwithmitch.mvibeginnerexample.model.BlogPost
 import com.codingwithmitch.mvibeginnerexample.model.User
 import com.codingwithmitch.mvibeginnerexample.ui.state.MainViewState
-import com.codingwithmitch.mvibeginnerexample.util.ApiSuccessResponse
-import com.codingwithmitch.mvibeginnerexample.util.DataState
-import com.codingwithmitch.mvibeginnerexample.util.GenericApiResponse
+import com.codingwithmitch.mvibeginnerexample.util.*
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
 
 object Repository {
 
-    val apiService: ApiService = MyRetrofitBuilder
-        .retrofitBuilder
-        .build()
-        .create(ApiService::class.java)
+    fun getBlogPosts(): LiveData<MainViewState> {
+        return object: NetworkBoundResource<List<BlogPost>>(){
 
-    fun getBlogPosts(): LiveData<DataState<MainViewState>> {
-        return object: NetworkBoundResource<List<BlogPost>, MainViewState>(){
-
-            override fun handleApiSuccessResponse(response: ApiSuccessResponse<List<BlogPost>>) {
-                result.value = DataState.data(
-                    null,
-                    MainViewState(
-                        blogPosts = response.body,
-                        user = null
+            override suspend fun handleResult(data: List<BlogPost>) {
+                withContext(Main){
+                    result.value = MainViewState(
+                        isLoading = false,
+                        blogPosts = data
                     )
-                )
+                }
             }
 
-            override fun createCall(): LiveData<GenericApiResponse<List<BlogPost>>> {
-                return apiService.getBlogPosts()
+            override suspend fun createCall(): List<BlogPost> {
+                return MyRetrofitBuilder.apiService.getBlogPosts()
             }
 
         }.asLiveData()
-
     }
 
-    fun getUser(): LiveData<DataState<MainViewState>> {
-        return object: NetworkBoundResource<User, MainViewState>(){
 
-            override fun handleApiSuccessResponse(response: ApiSuccessResponse<User>) {
-                result.value = DataState.data(
-                    null,
-                    MainViewState(
-                        blogPosts = null,
-                        user = response.body
+
+    fun getUser(userId: String): LiveData<MainViewState> {
+        return object: NetworkBoundResource<User>(){
+
+            override suspend fun handleResult(data: User) {
+                withContext(Main){
+                    result.value = MainViewState(
+                        isLoading = false,
+                        user = data
                     )
-                )
+                }
             }
 
-            override fun createCall(): LiveData<GenericApiResponse<User>> {
-                return apiService.getUser()
+            override suspend fun createCall(): User {
+                return MyRetrofitBuilder.apiService.getUser(userId)
             }
 
         }.asLiveData()
-
     }
 
 }

@@ -6,14 +6,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.codingwithmitch.mvibeginnerexample.R
-import com.codingwithmitch.mvibeginnerexample.util.DataState
+import com.codingwithmitch.mvibeginnerexample.ui.state.MainViewState
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(),
-    DataStateHandler
+    StateHandler
 {
-    override fun onDataStateChange(dataState: DataState<*>?) {
-        handleDataStateChange(dataState)
+    override fun onStateChange(viewState: MainViewState?) {
+        handleStateChange(viewState)
     }
 
     lateinit var viewModel: MainViewModel
@@ -33,24 +33,13 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    fun handleDataStateChange(dataState: DataState<*>?){
-        println("DEBUG: DataStateChange : ${dataState}")
-        dataState?.let{
+    fun handleStateChange(viewState: MainViewState?){
+        println("DEBUG: StateChange : ${viewState}")
+        viewState?.let{
 
             // Handle loading
-            showProgressBar(dataState.loading)
-
-            // Handle Message
-            dataState.message?.let{ event ->
-                event.getContentIfNotHandled()?.let{ message ->
-                    showToast(message)
-                }
-            }
+            showProgressBar(viewState.isLoading)
         }
-    }
-
-    fun showToast(message: String){
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     fun showProgressBar(isVisible: Boolean){

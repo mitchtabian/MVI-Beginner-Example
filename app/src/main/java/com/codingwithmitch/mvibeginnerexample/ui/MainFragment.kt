@@ -14,7 +14,6 @@ import com.codingwithmitch.mvibeginnerexample.R
 import com.codingwithmitch.mvibeginnerexample.model.User
 import com.codingwithmitch.mvibeginnerexample.ui.state.MainViewState
 import com.codingwithmitch.mvibeginnerexample.ui.state.MainStateEvent
-import com.codingwithmitch.mvibeginnerexample.util.DataState
 import com.codingwithmitch.mvibeginnerexample.util.TopSpacingItemDecoration
 import kotlinx.android.synthetic.main.fragment_main.*
 
@@ -23,7 +22,7 @@ class MainFragment : Fragment() {
 
     lateinit var viewModel: MainViewModel
 
-    lateinit var dataStateHandler: DataStateHandler
+    lateinit var stateHandler: StateHandler
 
     lateinit var mainRecyclerAdapter: MainRecyclerAdapter
 
@@ -57,21 +56,18 @@ class MainFragment : Fragment() {
         })
     }
 
-    fun handleDataState(dataState: DataState<MainViewState>){
-        println("DEBUG: DataState: ${dataState}")
-        // Handle Loading and Message
-        dataStateHandler.onDataStateChange(dataState)
+    fun handleDataState(viewState: MainViewState){
+        println("DEBUG: ViewState: ${viewState}")
 
-        // Handle Data<T>
-        dataState.data?.let{ event ->
-            event.getContentIfNotHandled()?.let{ viewState ->
-                viewState.blogPosts?.let { blogPosts ->
-                    viewModel.setBlogListData(blogPosts)
-                }
-                viewState.user?.let { user ->
-                    viewModel.setUser(user)
-                }
-            }
+        // Handle Loading
+        stateHandler.onStateChange(viewState)
+
+        // Handle Data
+        viewState.blogPosts?.let{ blogPosts ->
+            viewModel.setBlogListData(blogPosts)
+        }
+        viewState.user?.let{ user ->
+            viewModel.setUser(user)
         }
     }
 
@@ -109,7 +105,7 @@ class MainFragment : Fragment() {
     }
 
     fun triggerGetUserEvent(){
-        viewModel.setStateEvent(MainStateEvent.GetUserEvent())
+        viewModel.setStateEvent(MainStateEvent.GetUserEvent("1"))
     }
 
     fun triggerGetBlogsEvent(){
@@ -135,9 +131,9 @@ class MainFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try{
-            dataStateHandler = context as DataStateHandler
+            stateHandler = context as StateHandler
         }catch(e: ClassCastException){
-            println("$context must implement DataStateChangeListener")
+            println("$context must implement StateHandler")
         }
 
     }

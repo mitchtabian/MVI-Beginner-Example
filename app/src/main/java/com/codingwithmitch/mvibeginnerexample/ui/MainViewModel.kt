@@ -11,7 +11,6 @@ import com.codingwithmitch.mvibeginnerexample.ui.state.MainViewState
 import com.codingwithmitch.mvibeginnerexample.ui.state.MainStateEvent
 import com.codingwithmitch.mvibeginnerexample.ui.state.MainStateEvent.*
 import com.codingwithmitch.mvibeginnerexample.util.AbsentLiveData
-import com.codingwithmitch.mvibeginnerexample.util.DataState
 
 class MainViewModel : ViewModel(){
 
@@ -21,22 +20,26 @@ class MainViewModel : ViewModel(){
     val viewState: LiveData<MainViewState>
         get() = _viewState
 
-    val dataState: LiveData<DataState<MainViewState>> = Transformations
+    val dataState: LiveData<MainViewState> = Transformations
         .switchMap(_stateEvent){stateEvent ->
+            println("DEBUG: ViewModel: StateEvent: ${stateEvent}")
             stateEvent?.let {
                 handleStateEvent(stateEvent)
             }
         }
 
-    fun handleStateEvent(stateEvent: MainStateEvent): LiveData<DataState<MainViewState>>{
+    fun handleStateEvent(stateEvent: MainStateEvent): LiveData<MainViewState>{
         when(stateEvent){
 
             is GetBlogPostsEvent -> {
+                println("DEBUG: ViewModel: Detected GetBlogPostsEvent...")
                 return Repository.getBlogPosts()
             }
 
             is GetUserEvent -> {
-                return Repository.getUser()
+                return Repository.getUser(
+                   userId = stateEvent.userId
+                )
             }
 
             is None ->{
