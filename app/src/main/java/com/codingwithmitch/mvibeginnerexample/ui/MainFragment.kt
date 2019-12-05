@@ -38,6 +38,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+
         viewModel = activity?.run {
             ViewModelProvider(this).get(MainViewModel::class.java)
         }?: throw Exception("Invalid Activity")
